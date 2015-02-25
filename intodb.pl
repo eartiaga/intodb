@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 my $MAJOR   = 0;
-my $MINOR   = 100;
+my $MINOR   = 101;
 my $RELEASE = 13;
 
 my $VERSION = sprintf "%s.%s.%s", $MAJOR, $MINOR, $RELEASE;
@@ -1148,6 +1148,8 @@ X axis type. One of C<category>, C<numeric>, C<log2>, C<log10>.
 Comma-separated list of category values to appear in the X axis, in the
 same order as they are mean to appear. If necessary, it can be split
 into several C<xcat> item lines (the values are concatenated).
+First and last occurences of | in the values are used as begin/end 
+of string and therefore removed.
 
 The special value C<_> can be used to add extra separation between value
 labels.
@@ -1197,11 +1199,13 @@ variables.
 
 Y axis type. One of C<category>, C<numeric>, C<log2>, C<log10>.
 
-=item Ycat
+=item ycat
 
 Comma-separated list of category values to appear in the Y axis, in the
 same order as they are mean to appear. If necessary, it can be split
 into several C<ycat> item lines (the values are concatenated).
+First and last occurences of | in the values are used as begin/end 
+of string and therefore removed.
 
 The special value C<_> can be used to add extra separation between value
 labels.
@@ -1383,9 +1387,19 @@ Do not draw error intervals.
 Do not draw hash marks for X axis (useful to avoid some ugly effects when
 overlapping graphs).
 
+=item no_xhash_labels
+
+Do not draw hash mark labels for X axis (useful to avoid some ugly effects when
+overlapping graphs).
+
 =item no_yhash
 
 Do not draw hash marks for Y axis (useful to avoid some ugly effects when
+overlapping graphs).
+
+=item no_yhash_labels
+
+Do not draw hash mark labels for X axis (useful to avoid some ugly effects when
 overlapping graphs).
 
 =item xno_min
@@ -1593,8 +1607,9 @@ C<graph> section.
 Line type for the current curve. If not specified, a default one based on
 the C<linecycle> is chosen.
 
-Possible values are: C<none>, C<xbar>, C<ybar>, C<solid>, C<dotted>, C<dashed>,
-<longdash>, C<dotdash>, C<dotdotdash>, C<dotdotdashdash>.
+Possible values are: C<none>, C<xbar>, C<xbarval>, C<ybarval>, C<ytext>, 
+C<solid>, C<dotted>, C<dashed>, <longdash>, C<dotdash>, C<dotdotdash>, 
+C<dotdotdashdash>.
 
 =item mark
 
@@ -1643,7 +1658,7 @@ of a C<point> size to 10% of a curve C<point>. If the mark is a text,
 then the font size varies from 10pt to 1pt.
 
 Pre-defined values are: C<s100>, C<s90>, ..., C<s10> (representing values
-from 100% to 10%). Specific values can be specified using the sintax
+from 100% to 10%). Specific values can be specified using the syntax
 C<#size=XXX> (where XXX is the percentage with respect to the curve
 default C<point> size. The format C<#size=XXX/YYY> can be used to specify
 different percentages for the C<x> and C<y> dimensions).
@@ -5924,8 +5939,8 @@ our @ISA = qw(CurveParam);
 
 # format: [$auto, $description, $jgraph_code]
 our %Hash = (
-  auto           => [0, "auto",                   ""],
-  s100           => [1, "100%",                 "marksize 1 1"],
+  auto           => [0, "auto",                ""],
+  s100           => [1, "100%",                "marksize 1 1"],
    s90           => [1, "90%",                 "marksize 0.9 0.9"],
    s80           => [1, "80%",                 "marksize 0.8 0.8"],
    s70           => [1, "70%",                 "marksize 0.7 0.7"],
@@ -5934,10 +5949,30 @@ our %Hash = (
    s40           => [1, "40%",                 "marksize 0.4 0.4"],
    s30           => [1, "30%",                 "marksize 0.3 0.3"],
    s20           => [1, "20%",                 "marksize 0.2 0.2"],
-   s10           => [1, "10%",                 "marksize 0.1 0.1"],
+   s19           => [1, "19%",                 "marksize 0.19 0.19"],
+   s18           => [1, "18%",                 "marksize 0.18 0.18"],
+   s17           => [1, "17%",                 "marksize 0.17 0.17"],
+   s16           => [1, "16%",                 "marksize 0.16 0.16"],
+   s15           => [1, "15%",                 "marksize 0.15 0.15"],
+   s14           => [1, "14%",                 "marksize 0.14 0.14"],
+   s13           => [1, "13%",                 "marksize 0.13 0.13"],
+   s12           => [1, "12%",                 "marksize 0.12 0.12"],
+   s11           => [1, "11%",                 "marksize 0.11 0.11"],
+   s10           => [1, "10%",                 "marksize 0.10 0.10"],
+   s09           => [1, "9%",                  "marksize 0.09 0.09"],
+   s08           => [1, "8%",                  "marksize 0.08 0.08"],
+   s07           => [1, "7%",                  "marksize 0.07 0.07"],
+   s06           => [1, "6%",                  "marksize 0.06 0.06"],
+   s05           => [1, "5%",                  "marksize 0.05 0.05"],
+   s04           => [1, "4%",                  "marksize 0.04 0.04"],
+   s03           => [1, "3%",                  "marksize 0.03 0.03"],
+   s02           => [1, "2%",                  "marksize 0.02 0.02"],
+   s01           => [1, "1%",                  "marksize 0.01 0.01"],
 );
 
-our @List = qw(auto s100 s90 s80 s70 s60 s50 s40 s30 s20 s10);
+our @List = qw(auto s100 s90 s80 s70 s60 s50 s40 s30 s20 s19 s18 s17 s16 
+  s15 s14 s13 s12 s11 s10 s09 s08 s07 s06 s05 s04 s03 s02 s01);
+
 our @AutoList = grep {$MarkScale::Hash{$_}->[0]} @List;
 
 sub internalName {
@@ -6065,20 +6100,30 @@ our @ISA = qw(CurveParam);
 
 # format: [$auto, $description, $jgraph_code]
 our %Hash = (
-  auto           => [0, "auto",                   ""],
-  s100           => [1, "10pt",                 "fontsize 10"],
-   s90           => [1, "9pt",                 "fontsize 9"],
-   s80           => [1, "8pt",                 "fontsize 8"],
-   s70           => [1, "7pt",                 "fontsize 7"],
-   s60           => [1, "6pt",                 "fontsize 6"],
-   s50           => [1, "5pt",                 "fontsize 5"],
-   s40           => [1, "4pt",                 "fontsize 4"],
-   s30           => [1, "3pt",                 "fontsize 3"],
-   s20           => [1, "2pt",                 "fontsize 2"],
-   s10           => [1, "1pt",                 "fontsize 1"],
+  auto           => [0, "auto",                ""],
+   s19           => [1, "19pt",                "fontsize 19"],
+   s18           => [1, "18pt",                "fontsize 18"],
+   s17           => [1, "17pt",                "fontsize 17"],
+   s16           => [1, "16pt",                "fontsize 16"],
+   s15           => [1, "15pt",                "fontsize 15"],
+   s14           => [1, "14pt",                "fontsize 14"],
+   s13           => [1, "13pt",                "fontsize 13"],
+   s12           => [1, "12pt",                "fontsize 12"],
+   s11           => [1, "11pt",                "fontsize 11"],
+   s10           => [1, "10pt",                "fontsize 10"],
+   s9            => [1, "9pt",                 "fontsize 9"],
+   s8            => [1, "8pt",                 "fontsize 8"],
+   s7            => [1, "7pt",                 "fontsize 7"],
+   s6            => [1, "6pt",                 "fontsize 6"],
+   s5            => [1, "5pt",                 "fontsize 5"],
+   s4            => [1, "4pt",                 "fontsize 4"],
+   s3            => [1, "3pt",                 "fontsize 3"],
+   s2            => [1, "2pt",                 "fontsize 2"],
+   s1            => [1, "1pt",                 "fontsize 1"],
 );
 
-our @List = qw(auto s100 s90 s80 s70 s60 s50 s40 s30 s20 s10);
+our @List = qw(auto s19 s18 s17 s16 s16 s14 s13 s12 s11 s10
+  s9 s8 s7 s6 s5 s4 s3 s2 1);
 our @AutoList = grep {$TextMarkScale::Hash{$_}->[0]} @List;
 
 sub internalName {
@@ -6197,7 +6242,7 @@ our @ISA = qw(CurveParam);
 
 # format: [$auto, $description, $jgraph_code]
 our %Hash = (
-  none           => [0, "no line",                ""],
+  none           => [0, "no line",                "linetype none"],
   solid          => [1, "solid line",             "linetype solid"],
   dotted         => [1, "dotted line",            "linetype dotted"],
   dashed         => [1, "dashed line",            "linetype dashed"],
@@ -6206,13 +6251,15 @@ our %Hash = (
   dotdotdash     => [1, "dot-dot-dash line",      "linetype dotdotdash"],
   dotdotdashdash => [1, "dot-dot-dash-dash line", "linetype dotdotdashdash"],
   xbar           => [0, "vertical bar",           "marktype xbar"],
+  xbarval        => [0, "vertical bar value",     "marktype text :"],
   ybar           => [0, "horizontal bar",         "marktype ybar"],
+  ybarval        => [0, "horizontal bar value",   "marktype text :"],
 );
 
 our @List = qw(none
                solid dotted dashed longdash
                dotdash dotdotdash dotdotdashdash
-               xbar ybar);
+               xbar xbarval ybar ybarval);
 our @AutoList = grep {$Line::Hash{$_}->[0]} @List;
 
 =item $Line = Line->new($name);
@@ -8092,7 +8139,9 @@ our %Options = (
   top_axis         => "print x axis on top",
   right_axis       => "print y axis on the right",
   no_xhash         => "do not print marks on x axis",
+  no_xhash_labels  => "do not print mark labels on x axis",
   no_yhash         => "do not print marks on y axis",
+  no_yhash_labels  => "do not print mark labels on y axis",
   xno_min          => "do not set minimum axis value for x",
   yno_min          => "do not set minimum axis value for y",
   no_error         => "do not print error marks",
@@ -8755,7 +8804,9 @@ sub line {
   my $line = Line->new($idx);
      $line = Line->new($sect->getItemData("line")) if ($sect->hasItem("line"));
      $line = Line->new("xbar") if ($options->{xbar});
+     $line = Line->new("xbarval") if ($options->{xbarval});
      $line = Line->new("ybar") if ($options->{ybar});
+     $line = Line->new("ybarval") if ($options->{ybarval});
 
   return $line;
 }
@@ -8774,7 +8825,8 @@ sub mark {
   my $line = $obj->line();
 
   return Mark->new("auto")
-    if ($line->name() eq "xbar" || $line->name() eq "ybar");
+    if ($line->name() eq "xbar" || $line->name() eq "ybar" || 
+    $line->name() eq "xbarval" || $line->name() eq "ybarval");
 
   my $gdesc = $obj->parent()->parent();
   my $gsect = $gdesc->section();
@@ -8917,7 +8969,7 @@ sub aggregation {
 sub xBar {
   my $obj = shift;
   my $line = $obj->line();
-  if ($line->name() eq "xbar") {
+  if ($line->name() eq "xbar" || $line->name() eq "xbarval") {
     return $obj->getCurveCount() || 1;
   }
   return 0;
@@ -8930,7 +8982,7 @@ sub xBar {
 sub yBar {
   my $obj = shift;
   my $line = $obj->line();
-  if ($line->name() eq "ybar") {
+  if ($line->name() eq "ybar" || $line->name() eq "ybarval") {
     return $obj->getCurveCount() || 1;
   }
   return 0;
@@ -9631,7 +9683,8 @@ sub dataList {
             }
           }
 
-          if ($cdesc->line()->name() eq "ybar") {
+          if ($cdesc->line()->name() eq "ybar"|| 
+              $cdesc->line()->name() eq "ybarval") {
             ###### Y-BASED ######
             my @yvalues = sort {$obj->yCmp($a, $b, $Override)}
                                @{$curve->yValues()};
@@ -9999,7 +10052,8 @@ sub xml {
           $xml_curve->appendTextChild("label", $curve->getLabel())
              if ($curve->getLabel() =~ /\S/);
 
-          if ($cdesc->line()->name() eq "ybar") {
+          if ($cdesc->line()->name() eq "ybar" || 
+            $cdesc->line()->name() eq "ybarval") {
             ###### Y-BASED ######
             my @yvalues = sort {$obj->yCmp($a, $b, $Override)}
                                @{$curve->yValues()};
@@ -10377,6 +10431,8 @@ sub jgraphList {
   if ($options->{no_xhash}) {
     push(@str, "no_auto_hash_labels");
     push(@str, "no_auto_hash_marks");
+  } elsif ($options->{no_xhash_labels}) {
+    push(@str, "no_auto_hash_labels");
   }
   if ($xtype->name() eq "category") {
     push(@str, "min 0");
@@ -10388,8 +10444,19 @@ sub jgraphList {
       foreach my $v (@$xcat) {
         if (!$skiphash && $v ne "_") {
           push(@str, sprintf("hash_at %f", $xpos->{$v} * $xgrp + $xoff));
-          push(@str, sprintf("hash_label at %f : %s",
-                     $xpos->{$v} * $xgrp + $xoff, $v));
+          if (!$options->{no_xhash_labels}) {
+              
+              # Strip leading and trailing white spaces 
+              # and first/last occurrence  of |
+
+              my $hash_label = $v;
+
+              # $hash_label =~ s/^(\s*\|)?|(\|\s*)?$//g;
+              $hash_label =~ s/^(\s*\|)?|(\|\s*)?$//g;
+
+              push(@str, sprintf("hash_label at %f : %s",
+                               $xpos->{$v} * $xgrp + $xoff, $hash_label));
+          }
         } elsif ($v ne "_") {
           push(@str, sprintf("mhash_at %f", $xpos->{$v} * $xgrp + $xoff));
         }
@@ -10472,6 +10539,8 @@ sub jgraphList {
   if ($options->{no_yhash}) {
     push(@str, "no_auto_hash_labels");
     push(@str, "no_auto_hash_marks");
+  } elsif ($options->{no_yhash_labels}) {
+    push(@str, "no_auto_hash_labels");
   }
   if ($ytype->name() eq "category") {
     push(@str, "min 0");
@@ -10483,8 +10552,17 @@ sub jgraphList {
       foreach my $v (@$ycat) {
         if (!$skiphash && $v ne "_") {
           push(@str, sprintf("hash_at %f", $ypos->{$v} * $ygrp + $yoff));
-          push(@str, sprintf("hash_label at %f : %s",
-                     $ypos->{$v} * $ygrp + $yoff, $v));
+          if (!$options->{no_yhash_labels}) {
+              
+              # Strip leading and trailing white spaces 
+              # and first/last occurrence  of |
+
+              my $hash_label = $v;
+              $hash_label =~ s/^(\s*\|)?|(\|\s*)?$//g;
+
+              push(@str, sprintf("hash_label at %f : %s",
+                               $ypos->{$v} * $ygrp + $yoff, $hash_label));
+          }
         } elsif ($v ne "_") {
           push(@str, sprintf("mhash_at %f", $ypos->{$v} * $ygrp + $yoff));
         }
@@ -10575,13 +10653,35 @@ sub jgraphList {
           push(@str, sprintf("curve %d", $org));
                $org += ($options->{stack})? -1: 1;
           push(@str, "poly") if ($c_options->{fill});
-          push(@str, $cdesc->line($curve_idx)->jgraph());
+
+          my $markscale = $cdesc->markscale($curve_idx)->jgraph();
           my $markspec = $cdesc->mark($curve_idx, $curve, $Override)->jgraph();
+              
+          if ($cdesc->line()->name() eq "xbar" || 
+              $cdesc->line()->name() eq "ybar" || 
+              $cdesc->line()->name() eq "xbarval" ||
+              $cdesc->line()->name() eq "ybarval") {
+
+              $markspec = $cdesc->line($curve_idx)->jgraph();
+          }
+          else {
+              push(@str, $cdesc->line($curve_idx)->jgraph());
+          }
+            
+          # Disable marks for bar values as they
+          # appear in the middle of the value as noise
+            
+          if ($cdesc->line()->name() eq "xbarval" ||
+              $cdesc->line()->name() eq "ybarval") {
+              $markscale = "marksize 0.00 0.00"
+          } 
+
           # begin of ugly hack to allow text mark scaling
           if ($markspec =~ /^marktype text/) {
             my $tmscalespec = $cdesc->textmarkscale($curve_idx)->jgraph();
             $markspec =~ s/^marktype text//;
             $markspec = "marktype text " . $tmscalespec . $markspec;
+            $markscale = "marksize 0.00 0.00"
           }
           # end of ugly hack to allow text mark scaling
           push(@str, $cdesc->mark($curve_idx, $curve, $Override)->jgraph());
@@ -10594,7 +10694,8 @@ sub jgraphList {
             push(@str, ($csect->getItemExpandedData("jgraph", $Override)));
           }
 
-          if ($cdesc->line()->name() eq "ybar") {
+          if ($cdesc->line()->name() eq "ybar" || 
+               $cdesc->line()->name() eq "ybarval") {
             ###### Y-BASED ######
             my @yvalues = sort {$obj->yCmp($a, $b, $Override)}
                                @{$curve->yValues()};
@@ -10657,10 +10758,24 @@ sub jgraphList {
                   $high += $xaccum->{$yp};
                   $xaccum->{$yp} = $x;
                 }
-                if ($no_error) {
+                if ( $cdesc->line()->name() eq "ybarval") {
+                  $markspec = "$markspec " . $x;
+
+                  # TODO: Make support for negative $xbase and $x
+
+                  if ($xtype->name() eq "numeric") {
+                    $x = $xbase+(($x-$xbase)/2.0);
+                  } elsif ($xtype->name() eq "log2" || $xtype->name() eq "log10") {
+                    # Find the geometric mean
+                    $x = sqrt($xbase*$x);
+                  }
                   push(@str,sprintf("pts %s %s", $x, $y));
                 } else {
-                  push(@str,sprintf("x_epts %s %s %s %s", $x, $y, $low, $high));
+                  if ($no_error) {
+                    push(@str,sprintf("pts %s %s", $x, $y));
+                  } else {
+                    push(@str,sprintf("x_epts %s %s %s %s", $x, $y, $low, $high));
+                  }
                 }
               }
             }
@@ -10674,6 +10789,9 @@ sub jgraphList {
 #                my $offset = ($cdesc->yBar())? $ybar_idx: $yoff;
 #                $last_y = ($last_y * $ygrp + $offset) / $ygrp;
 #              }
+              if ( $cdesc->line()->name() eq "ybarval") {
+                $markspec = "$markspec " . $xbase;
+              }
               if ($no_error) {
                 push(@str, sprintf("pts %s %s", $last_y, $xbase));
               } else {
@@ -10749,10 +10867,26 @@ sub jgraphList {
                   $high += $yaccum->{$xp};
                   $yaccum->{$xp} = $y;
                 }
-                if ($no_error) {
-                  push(@str,sprintf("pts %s %s", $x, $y));
+                if ( $cdesc->line()->name() eq "xbarval") {
+                    $markspec = "$markspec " . $y;
+                    
+                    # TODO: Make support for negative $ybase and $y
+                    
+                    if ($ytype->name() eq "numeric") {
+                      $y = $ybase+(($y-$ybase)/2.0);
+                    } elsif ($ytype->name() eq "log2" || $ytype->name() eq "log10") {
+
+                      # Find the geometric mean
+
+                      $y = sqrt($ybase*$y);
+                    }
+                    push(@str,sprintf("pts %s %s", $x, $y));
                 } else {
-                  push(@str,sprintf("y_epts %s %s %s %s", $x, $y, $low, $high));
+                    if ($no_error) {
+                      push(@str,sprintf("pts %s %s", $x, $y));
+                    } else {
+                      push(@str,sprintf("y_epts %s %s %s %s", $x, $y, $low, $high));
+                    }
                 }
               }
             }
@@ -10774,6 +10908,8 @@ sub jgraphList {
               }
             }
           }
+          push(@str, $markspec);
+          push(@str, $markscale);
           push(@str, "");
         }
         $curve_idx += 1 if (!$c_options->{skip});
@@ -11462,8 +11598,8 @@ sub isList {
       $val =~ s/^\,//;
     } elsif (!$quoted && $val =~ /^([^\,]+)/){
       $str = $1;
-      $str =~ s/\s+/ /;
-      $str =~ s/ $//;
+      $str =~ s/^\s+//;
+      $str =~ s/\s+$//;
       push(@$listval, $str);
       $val =~ s/^[^\,]+//;
     } else {
