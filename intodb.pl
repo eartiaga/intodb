@@ -6111,15 +6111,15 @@ our %Hash = (
    s12           => [1, "12pt",                "fontsize 12"],
    s11           => [1, "11pt",                "fontsize 11"],
    s10           => [1, "10pt",                "fontsize 10"],
-   s9            => [1, "9pt",                 "fontsize 9"],
-   s8            => [1, "8pt",                 "fontsize 8"],
-   s7            => [1, "7pt",                 "fontsize 7"],
-   s6            => [1, "6pt",                 "fontsize 6"],
-   s5            => [1, "5pt",                 "fontsize 5"],
-   s4            => [1, "4pt",                 "fontsize 4"],
-   s3            => [1, "3pt",                 "fontsize 3"],
-   s2            => [1, "2pt",                 "fontsize 2"],
-   s1            => [1, "1pt",                 "fontsize 1"],
+   s09           => [1, "9pt",                 "fontsize 9"],
+   s08           => [1, "8pt",                 "fontsize 8"],
+   s07           => [1, "7pt",                 "fontsize 7"],
+   s06           => [1, "6pt",                 "fontsize 6"],
+   s05           => [1, "5pt",                 "fontsize 5"],
+   s04           => [1, "4pt",                 "fontsize 4"],
+   s03           => [1, "3pt",                 "fontsize 3"],
+   s02           => [1, "2pt",                 "fontsize 2"],
+   s01           => [1, "1pt",                 "fontsize 1"],
 );
 
 our @List = qw(auto s19 s18 s17 s16 s16 s14 s13 s12 s11 s10
@@ -10684,10 +10684,7 @@ sub jgraphList {
             $markscale = "marksize 0.00 0.00"
           }
           # end of ugly hack to allow text mark scaling
-          push(@str, $cdesc->mark($curve_idx, $curve, $Override)->jgraph());
-          push(@str, $markspec);
           push(@str, $cdesc->color($curve_idx)->jgraph());
-          push(@str, $cdesc->markscale($curve_idx)->jgraph());
           push(@str, sprintf("label : %s", $curve->getLabel()))
                if ($curve->getLabel() =~ /\S/);
           if ($csect->hasItem("jgraph")) {
@@ -10759,7 +10756,19 @@ sub jgraphList {
                   $xaccum->{$yp} = $x;
                 }
                 if ( $cdesc->line()->name() eq "ybarval") {
-                  $markspec = "$markspec " . $x;
+                  # NOTE: When using aggregation such as avg,
+                  #       values have to be reformatted
+                  # NOTE: We possible end up with a rounding error
+                  #       due to double "reformatting":
+                  # 1) Data is formatted when extracted from the database
+                  # 2) Data is reformatted here after aggregation       
+
+                  my $xvalformat = substr $csect->getItemData("xval"), 1, -1;
+                  if (index($xvalformat, "%") eq 0) {
+                    $markspec = "$markspec " . sprintf($xvalformat, $x);
+                  } else {
+                    $markspec = "$markspec " . $x;
+                  }
 
                   # TODO: Make support for negative $xbase and $x
 
@@ -10868,25 +10877,37 @@ sub jgraphList {
                   $yaccum->{$xp} = $y;
                 }
                 if ( $cdesc->line()->name() eq "xbarval") {
+                  # NOTE: When using aggregation such as avg,
+                  #       values have to be reformatted
+                  # NOTE: We possible end up with a rounding error
+                  #       due to double "reformatting":
+                  # 1) Data is formatted when extracted from the database
+                  # 2) Data is reformatted here after aggregation       
+
+                  my $yvalformat = substr $csect->getItemData("yval"), 1, -1;
+                  if (index($yvalformat, "%") eq 0) {
+                    $markspec = "$markspec " . sprintf($yvalformat, $y);
+                  } else {
                     $markspec = "$markspec " . $y;
+                  }
                     
-                    # TODO: Make support for negative $ybase and $y
-                    
-                    if ($ytype->name() eq "numeric") {
-                      $y = $ybase+(($y-$ybase)/2.0);
-                    } elsif ($ytype->name() eq "log2" || $ytype->name() eq "log10") {
+                  # TODO: Make support for negative $ybase and $y
+                  
+                  if ($ytype->name() eq "numeric") {
+                    $y = $ybase+(($y-$ybase)/2.0);
+                  } elsif ($ytype->name() eq "log2" || $ytype->name() eq "log10") {
 
-                      # Find the geometric mean
+                    # Find the geometric mean
 
-                      $y = sqrt($ybase*$y);
-                    }
-                    push(@str,sprintf("pts %s %s", $x, $y));
+                    $y = sqrt($ybase*$y);
+                  }
+                  push(@str,sprintf("pts %s %s", $x, $y));
                 } else {
-                    if ($no_error) {
-                      push(@str,sprintf("pts %s %s", $x, $y));
-                    } else {
-                      push(@str,sprintf("y_epts %s %s %s %s", $x, $y, $low, $high));
-                    }
+                  if ($no_error) {
+                    push(@str,sprintf("pts %s %s", $x, $y));
+                  } else {
+                    push(@str,sprintf("y_epts %s %s %s %s", $x, $y, $low, $high));
+                  }
                 }
               }
             }
